@@ -11,6 +11,9 @@
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
     "tauri:build:debug": "tauri build --debug",
+    "tauri:build:silicon": "tauri build --target aarch64-apple-darwin",
+    "tauri:build:intel": "tauri build --target x86_64-apple-darwin",
+    "tauri:build:windows": "tauri build --target x86_64-pc-windows-msvc",
     "tauri:icon": "tauri icon app-icon.png",
     "type-check": "tsc --noEmit"
   },
