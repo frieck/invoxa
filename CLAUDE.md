@@ -7,6 +7,7 @@ Instructions for Claude Code when working in this repository.
 ## Rules that override all defaults
 
 - **Never commit or push without explicit confirmation.** Always stage, show a summary of what will change, and ask before running `git commit` or `git push`.
+- **Never add `Co-Authored-By` trailers to commits.** Commits should show only the user as author.
 - **Never install packages without confirming first.** Show the package name and reason, then wait for approval.
 
 ---
