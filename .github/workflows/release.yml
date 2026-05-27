@@ -1,0 +1,92 @@
+name: Release
+
+# Triggers on version tags (e.g. v1.0.0) or manual dispatch
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  # ── macOS: Apple Silicon + Intel (separate builds via matrix) ───────────
+  release-macos:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        target:
+          - aarch64-apple-darwin
+          - x86_64-apple-darwin
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      # Cache Rust dependencies — critical for staying within free-tier minutes
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+          key: ${{ matrix.target }}
+
+      - run: yarn install --frozen-lockfile
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: Invoxa ${{ github.ref_name }}
+          releaseBody: |
+            ## Invoxa ${{ github.ref_name }}
+
+            ### Download
+            - **macOS Apple Silicon** — `Invoxa_aarch64.dmg`
+            - **macOS Intel** — `Invoxa_x64.dmg`
+            - **Windows** — `Invoxa_x64-setup.exe` or `Invoxa_x64_en-US.msi`
+
+            > First time on macOS: right-click the app → Open (bypasses Gatekeeper).
+          releaseDraft: true
+          prerelease: false
+          args: --target ${{ matrix.target }}
+
+  # ── Windows x64 ──────────────────────────────────────────────────────────
+  release-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      - run: yarn install --frozen-lockfile
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: Invoxa ${{ github.ref_name }}
+          releaseBody: |
+            ## Invoxa ${{ github.ref_name }}
+
+            ### Download
+            - **macOS** — `Invoxa_universal.dmg` (Apple Silicon + Intel)
+            - **Windows** — `Invoxa_x64-setup.exe` or `Invoxa_x64_en-US.msi`
+
+            > First time on macOS: right-click the app → Open (bypasses Gatekeeper).
+          releaseDraft: true
+          prerelease: false
