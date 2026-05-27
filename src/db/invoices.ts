@@ -115,11 +115,11 @@ async function replaceInvoiceItems(
   }
 }
 
-export async function markAsPaid(id: number): Promise<void> {
+export async function markAsPaid(id: number, paymentDate: string): Promise<void> {
   const db = await getDb();
   await db.execute(
-    `UPDATE invoices SET status='paid', payment_date=date('now'), updated_at=datetime('now') WHERE id=?`,
-    [id]
+    `UPDATE invoices SET status='paid', payment_date=?, updated_at=datetime('now') WHERE id=?`,
+    [paymentDate, id]
   );
 }
 

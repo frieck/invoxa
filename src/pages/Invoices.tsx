@@ -4,6 +4,7 @@ import {
   Stack, Title, Group, Button, TextInput, Select, Card, Text, Badge,
   ActionIcon, Menu, Tooltip,
 } from '@mantine/core';
+import { DatePickerInput } from '@mantine/dates';
 import { AgGridReact } from 'ag-grid-react';
 import type { ColDef, ICellRendererParams } from 'ag-grid-community';
 import {
@@ -47,10 +48,36 @@ export default function Invoices() {
     return matchSearch && matchStatus;
   });
 
-  const handleMarkPaid = useCallback(async (id: number) => {
-    await markAsPaid(id);
-    notifications.show({ message: t('invoice.markedPaid'), color: 'green' });
-    load();
+  const handleMarkPaid = useCallback((id: number) => {
+    let paymentDate = new Date();
+    modals.open({
+      title: t('invoice.markPaidConfirmTitle'),
+      children: (
+        <Stack gap="md">
+          <Text size="sm">{t('invoice.markPaidConfirmMsg')}</Text>
+          <DatePickerInput
+            label={t('invoice.paymentDate')}
+            defaultValue={paymentDate}
+            onChange={(v) => { if (v) paymentDate = v; }}
+            valueFormat="DD/MM/YYYY"
+            maxDate={new Date()}
+          />
+          <Group justify="flex-end">
+            <Button variant="default" onClick={() => modals.closeAll()}>
+              {t('common.cancel')}
+            </Button>
+            <Button color="green" onClick={async () => {
+              modals.closeAll();
+              await markAsPaid(id, paymentDate.toISOString().slice(0, 10));
+              notifications.show({ message: t('invoice.markedPaid'), color: 'green' });
+              load();
+            }}>
+              {t('invoice.markAsPaid')}
+            </Button>
+          </Group>
+        </Stack>
+      ),
+    });
   }, [load, t]);
 
   const handleDelete = useCallback((id: number, num: string) => {

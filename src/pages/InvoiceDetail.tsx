@@ -192,16 +192,34 @@ export default function InvoiceDetail() {
   };
 
   const handleMarkPaid = () => {
-    modals.openConfirmModal({
+    let paymentDate = new Date();
+    modals.open({
       title: t('invoice.markPaidConfirmTitle'),
-      children: <Text size="sm">{t('invoice.markPaidConfirmMsg')}</Text>,
-      labels: { confirm: t('invoice.markAsPaid'), cancel: t('common.cancel') },
-      confirmProps: { color: 'green' },
-      onConfirm: async () => {
-        await markAsPaid(Number(id));
-        notifications.show({ message: t('invoice.markedPaid'), color: 'green' });
-        loadData();
-      },
+      children: (
+        <Stack gap="md">
+          <Text size="sm">{t('invoice.markPaidConfirmMsg')}</Text>
+          <DatePickerInput
+            label={t('invoice.paymentDate')}
+            defaultValue={paymentDate}
+            onChange={(v) => { if (v) paymentDate = v; }}
+            valueFormat="DD/MM/YYYY"
+            maxDate={new Date()}
+          />
+          <Group justify="flex-end">
+            <Button variant="default" onClick={() => modals.closeAll()}>
+              {t('common.cancel')}
+            </Button>
+            <Button color="green" onClick={async () => {
+              modals.closeAll();
+              await markAsPaid(Number(id), formatDateISO(paymentDate));
+              notifications.show({ message: t('invoice.markedPaid'), color: 'green' });
+              loadData();
+            }}>
+              {t('invoice.markAsPaid')}
+            </Button>
+          </Group>
+        </Stack>
+      ),
     });
   };
 
