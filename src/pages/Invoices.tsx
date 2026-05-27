@@ -9,7 +9,7 @@ import { AgGridReact } from 'ag-grid-react';
 import type { ColDef, ICellRendererParams } from 'ag-grid-community';
 import {
   IconPlus, IconSearch, IconDots, IconEye, IconEdit,
-  IconCheck, IconTrash, IconFileExport, IconPrinter, IconRefresh,
+  IconCheck, IconTrash, IconFileExport, IconFileTypePdf, IconRefresh,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
@@ -181,9 +181,9 @@ export default function Invoices() {
                   {t('invoice.markAsSent')}
                 </Menu.Item>
               )}
-              <Menu.Item leftSection={<IconPrinter size={14} />}
+              <Menu.Item leftSection={<IconFileTypePdf size={14} />}
                 onClick={() => navigate(`/invoices/${inv.id}?print=1`)}>
-                {t('invoice.printPdf')}
+                {t('invoice.exportPdf')}
               </Menu.Item>
               <Menu.Divider />
               <Menu.Item leftSection={<IconTrash size={14} />} color="red"

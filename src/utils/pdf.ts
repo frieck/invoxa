@@ -41,23 +41,3 @@ export async function exportToPdf(element: HTMLElement, defaultFilename: string)
   const bytes = pdf.output('arraybuffer');
   await writeFile(destPath, new Uint8Array(bytes));
 }
-
-export function printElement(element: HTMLElement): void {
-  // window.open is blocked in Tauri — overlay approach instead
-  const overlay = document.createElement('div');
-  overlay.style.cssText =
-    'position:fixed;inset:0;background:#fff;z-index:99999;overflow:auto;';
-  overlay.innerHTML = element.outerHTML;
-
-  const style = document.createElement('style');
-  style.textContent = `@media print { body > *:not(#__invoxa_print__) { display: none !important; } }`;
-  overlay.id = '__invoxa_print__';
-
-  document.head.appendChild(style);
-  document.body.appendChild(overlay);
-
-  window.print();
-
-  document.head.removeChild(style);
-  document.body.removeChild(overlay);
-}

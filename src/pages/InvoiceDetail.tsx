@@ -14,7 +14,7 @@ import { AgGridReact } from 'ag-grid-react';
 import type { ColDef, ICellRendererParams } from 'ag-grid-community';
 import {
   IconArrowLeft, IconDeviceFloppy, IconPlus, IconTrash,
-  IconCheck, IconPrinter, IconFileTypePdf, IconCopy,
+  IconCheck, IconFileTypePdf, IconCopy,
 } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { getInvoice, createInvoice, updateInvoice, markAsPaid } from '../db/invoices';
@@ -30,7 +30,7 @@ import {
 } from '../utils/format';
 import StatusBadge from '../components/Invoice/StatusBadge';
 import InvoicePrint from '../components/Invoice/InvoicePrint';
-import { exportToPdf, printElement } from '../utils/pdf';
+import { exportToPdf } from '../utils/pdf';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
 
@@ -310,8 +310,8 @@ export default function InvoiceDetail() {
           <Tabs.Tab value="edit">
             {readonly ? t('invoice.viewInvoice') : t('invoice.editInvoice')}
           </Tabs.Tab>
-          <Tabs.Tab value="print" leftSection={<IconPrinter size={14} />}>
-            {t('invoice.previewPrint')}
+          <Tabs.Tab value="print" leftSection={<IconFileTypePdf size={14} />}>
+            {t('invoice.exportPdf')}
           </Tabs.Tab>
         </Tabs.List>
 
@@ -500,12 +500,6 @@ export default function InvoiceDetail() {
                   }}
                 >
                   {t('invoice.exportPdf')}
-                </Button>
-                <Button
-                  leftSection={<IconPrinter size={16} />} variant="light"
-                  onClick={() => { if (!printRef.current) return; printElement(printRef.current); }}
-                >
-                  {t('invoice.print')}
                 </Button>
               </Group>
               <Card p={0} radius="lg" withBorder style={{ overflow: 'hidden' }}>
