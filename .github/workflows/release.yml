@@ -10,21 +10,19 @@ permissions:
   contents: write
 
 jobs:
-  # ── Create the draft release first ───────────────────────────────────────
+  # ── Create the draft release first (no build needed) ────────────────────
   create-release:
     runs-on: ubuntu-latest
     outputs:
-      release_id: ${{ steps.create.outputs.releaseId }}
+      release_id: ${{ steps.create.outputs.id }}
     steps:
       - uses: actions/checkout@v4
-      - uses: tauri-apps/tauri-action@v0
+      - uses: softprops/action-gh-release@v2
         id: create
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: Invoxa ${{ github.ref_name }}
-          releaseBody: |
+          tag_name: ${{ github.ref_name }}
+          name: Invoxa ${{ github.ref_name }}
+          body: |
             ## Invoxa ${{ github.ref_name }}
 
             ### Download
@@ -33,7 +31,7 @@ jobs:
             - **Windows** — `Invoxa_x64-setup.exe` or `Invoxa_x64_en-US.msi`
 
             > First time on macOS: right-click the app → Open (bypasses Gatekeeper).
-          releaseDraft: true
+          draft: true
           prerelease: false
 
   # ── macOS builds (upload assets to existing release) ─────────────────────
