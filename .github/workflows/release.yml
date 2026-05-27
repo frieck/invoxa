@@ -1,6 +1,5 @@
 name: Release
 
-# Triggers on version tags (e.g. v1.0.0) or manual dispatch
 on:
   push:
     tags:
@@ -11,8 +10,35 @@ permissions:
   contents: write
 
 jobs:
-  # ── macOS: Apple Silicon + Intel (separate builds via matrix) ───────────
-  release-macos:
+  # ── Create the draft release first ───────────────────────────────────────
+  create-release:
+    runs-on: ubuntu-latest
+    outputs:
+      release_id: ${{ steps.create.outputs.releaseId }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: tauri-apps/tauri-action@v0
+        id: create
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: Invoxa ${{ github.ref_name }}
+          releaseBody: |
+            ## Invoxa ${{ github.ref_name }}
+
+            ### Download
+            - **macOS Apple Silicon** — `Invoxa_aarch64.dmg`
+            - **macOS Intel** — `Invoxa_x64.dmg`
+            - **Windows** — `Invoxa_x64-setup.exe` or `Invoxa_x64_en-US.msi`
+
+            > First time on macOS: right-click the app → Open (bypasses Gatekeeper).
+          releaseDraft: true
+          prerelease: false
+
+  # ── macOS builds (upload assets to existing release) ─────────────────────
+  build-macos:
+    needs: create-release
     runs-on: macos-latest
     strategy:
       matrix:
@@ -31,7 +57,6 @@ jobs:
         with:
           targets: ${{ matrix.target }}
 
-      # Cache Rust dependencies — critical for staying within free-tier minutes
       - uses: swatinem/rust-cache@v2
         with:
           workspaces: src-tauri -> target
@@ -43,23 +68,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: Invoxa ${{ github.ref_name }}
-          releaseBody: |
-            ## Invoxa ${{ github.ref_name }}
-
-            ### Download
-            - **macOS Apple Silicon** — `Invoxa_aarch64.dmg`
-            - **macOS Intel** — `Invoxa_x64.dmg`
-            - **Windows** — `Invoxa_x64-setup.exe` or `Invoxa_x64_en-US.msi`
-
-            > First time on macOS: right-click the app → Open (bypasses Gatekeeper).
-          releaseDraft: true
-          prerelease: false
+          releaseId: ${{ needs.create-release.outputs.release_id }}
           args: --target ${{ matrix.target }}
 
-  # ── Windows x64 ──────────────────────────────────────────────────────────
-  release-windows:
+  # ── Windows build ─────────────────────────────────────────────────────────
+  build-windows:
+    needs: create-release
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -81,15 +95,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: Invoxa ${{ github.ref_name }}
-          releaseBody: |
-            ## Invoxa ${{ github.ref_name }}
-
-            ### Download
-            - **macOS** — `Invoxa_universal.dmg` (Apple Silicon + Intel)
-            - **Windows** — `Invoxa_x64-setup.exe` or `Invoxa_x64_en-US.msi`
-
-            > First time on macOS: right-click the app → Open (bypasses Gatekeeper).
-          releaseDraft: true
-          prerelease: false
+          releaseId: ${{ needs.create-release.outputs.release_id }}
