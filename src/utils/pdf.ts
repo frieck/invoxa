@@ -1,0 +1,63 @@
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import { save } from '@tauri-apps/plugin-dialog';
+import { writeFile } from '@tauri-apps/plugin-fs';
+
+export async function exportToPdf(element: HTMLElement, defaultFilename: string): Promise<void> {
+  const destPath = await save({
+    defaultPath: defaultFilename,
+    filters: [{ name: 'PDF', extensions: ['pdf'] }],
+  });
+  if (!destPath) return;
+
+  const canvas = await html2canvas(element, {
+    scale: 2,
+    useCORS: true,
+    logging: false,
+    backgroundColor: '#ffffff',
+  });
+
+  const imgData = canvas.toDataURL('image/png');
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const imgWidth = pageWidth;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+  let heightLeft = imgHeight;
+  let position = 0;
+
+  pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+  heightLeft -= pageHeight;
+
+  while (heightLeft > 0) {
+    position = heightLeft - imgHeight;
+    pdf.addPage();
+    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+  }
+
+  const bytes = pdf.output('arraybuffer');
+  await writeFile(destPath, new Uint8Array(bytes));
+}
+
+export function printElement(element: HTMLElement): void {
+  // window.open is blocked in Tauri — overlay approach instead
+  const overlay = document.createElement('div');
+  overlay.style.cssText =
+    'position:fixed;inset:0;background:#fff;z-index:99999;overflow:auto;';
+  overlay.innerHTML = element.outerHTML;
+
+  const style = document.createElement('style');
+  style.textContent = `@media print { body > *:not(#__invoxa_print__) { display: none !important; } }`;
+  overlay.id = '__invoxa_print__';
+
+  document.head.appendChild(style);
+  document.body.appendChild(overlay);
+
+  window.print();
+
+  document.head.removeChild(style);
+  document.body.removeChild(overlay);
+}
