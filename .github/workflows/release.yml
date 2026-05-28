@@ -28,7 +28,7 @@ jobs:
             ### Download
             - **macOS Apple Silicon** — `Invoxa_aarch64.dmg`
             - **macOS Intel** — `Invoxa_x64.dmg`
-            - **Windows** — `Invoxa_x64-setup.exe` or `Invoxa_x64_en-US.msi`
+            - **Windows** — `Invoxa_x64-setup.exe`
 
             > First time on macOS: right-click the app → Open (bypasses Gatekeeper).
           draft: true
@@ -117,6 +117,7 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
+          args: --bundles nsis
 
   # ── Publish: generate latest.json and undraft the release ────────────────
   publish-release:
