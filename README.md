@@ -89,6 +89,24 @@ src-tauri/
 └── capabilities/      # Tauri permission configuration
 ```
 
+## Contributing
+
+1. Fork the repo and create a branch from `main`
+2. Install dependencies: `yarn install` (husky hooks are set up automatically)
+3. Make your changes and run `yarn type-check` to verify
+4. Commit using **Conventional Commits** — the `commit-msg` hook will enforce this:
+
+   ```
+   feat(scope): short description in lower-case
+   fix(scope): short description in lower-case
+   ```
+
+   Allowed types: `feat`, `fix`, `chore`, `docs`, `style`, `refactor`, `test`, `ci`, `build`, `perf`, `revert`
+
+5. Open a pull request against `main`
+
+> New UI strings must be added to both `src/i18n/locales/en.ts` and `src/i18n/locales/pt-BR.ts`.
+
 ## License
 
 Copyright (C) 2026 Felipe Rieck
