@@ -159,27 +159,26 @@ jobs:
           echo "x64 bundle: $X64_BUNDLE"
           echo "win bundle: $WIN_BUNDLE"
 
-          cat > latest.json << EOF
-          {
-            "version": "$VERSION",
-            "notes": "See release notes at https://github.com/frieck/invoxa/releases/tag/$TAG",
-            "pub_date": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-            "platforms": {
-              "darwin-aarch64": {
-                "signature": "$AARCH64_SIG",
-                "url": "https://github.com/frieck/invoxa/releases/download/$TAG/$AARCH64_BUNDLE"
-              },
-              "darwin-x86_64": {
-                "signature": "$X64_SIG",
-                "url": "https://github.com/frieck/invoxa/releases/download/$TAG/$X64_BUNDLE"
-              },
-              "windows-x86_64": {
-                "signature": "$WIN_SIG",
-                "url": "https://github.com/frieck/invoxa/releases/download/$TAG/$WIN_BUNDLE"
+          jq -n \
+            --arg version "$VERSION" \
+            --arg notes "See release notes at https://github.com/frieck/invoxa/releases/tag/$TAG" \
+            --arg pub_date "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --arg aarch64_sig "$AARCH64_SIG" \
+            --arg aarch64_url "https://github.com/frieck/invoxa/releases/download/$TAG/$AARCH64_BUNDLE" \
+            --arg x64_sig "$X64_SIG" \
+            --arg x64_url "https://github.com/frieck/invoxa/releases/download/$TAG/$X64_BUNDLE" \
+            --arg win_sig "$WIN_SIG" \
+            --arg win_url "https://github.com/frieck/invoxa/releases/download/$TAG/$WIN_BUNDLE" \
+            '{
+              version: $version,
+              notes: $notes,
+              pub_date: $pub_date,
+              platforms: {
+                "darwin-aarch64": {signature: $aarch64_sig, url: $aarch64_url},
+                "darwin-x86_64":  {signature: $x64_sig,    url: $x64_url},
+                "windows-x86_64": {signature: $win_sig,    url: $win_url}
               }
-            }
-          }
-          EOF
+            }' > latest.json
 
           echo "=== latest.json ==="
           cat latest.json
