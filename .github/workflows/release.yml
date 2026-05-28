@@ -136,11 +136,28 @@ jobs:
           TAG=${{ github.ref_name }}
           VERSION=${TAG#v}
 
-          gh release download "$TAG" --repo frieck/invoxa -p "*.sig" -D /tmp/sigs || true
+          echo "=== Release assets ==="
+          gh release view "$TAG" --repo frieck/invoxa --json assets --jq '.assets[].name'
 
-          AARCH64_SIG=$(cat "/tmp/sigs/Invoxa_${VERSION}_aarch64.app.tar.gz.sig" 2>/dev/null || echo "")
-          X64_SIG=$(cat "/tmp/sigs/Invoxa_${VERSION}_x64.app.tar.gz.sig" 2>/dev/null || echo "")
-          WIN_SIG=$(cat "/tmp/sigs/Invoxa_${VERSION}_x64-setup.exe.sig" 2>/dev/null || echo "")
+          gh release download "$TAG" --repo frieck/invoxa -p "*.sig" -D /tmp/sigs || true
+          echo "=== Downloaded .sig files ==="
+          ls /tmp/sigs/ 2>/dev/null || echo "none"
+
+          AARCH64_SIG_FILE=$(find /tmp/sigs -name "*aarch64*.sig" 2>/dev/null | head -1)
+          X64_SIG_FILE=$(find /tmp/sigs -name "*x64*.app*sig" 2>/dev/null | head -1)
+          WIN_SIG_FILE=$(find /tmp/sigs -name "*setup*.sig" 2>/dev/null | head -1)
+
+          AARCH64_SIG=$(cat "$AARCH64_SIG_FILE" 2>/dev/null || echo "")
+          X64_SIG=$(cat "$X64_SIG_FILE" 2>/dev/null || echo "")
+          WIN_SIG=$(cat "$WIN_SIG_FILE" 2>/dev/null || echo "")
+
+          AARCH64_BUNDLE=$(gh release view "$TAG" --repo frieck/invoxa --json assets --jq '.assets[].name' | grep -E "aarch64.*app.*tar.*gz$" | head -1)
+          X64_BUNDLE=$(gh release view "$TAG" --repo frieck/invoxa --json assets --jq '.assets[].name' | grep -E "x64.*app.*tar.*gz$" | head -1)
+          WIN_BUNDLE=$(gh release view "$TAG" --repo frieck/invoxa --json assets --jq '.assets[].name' | grep -E "setup\.exe$" | head -1)
+
+          echo "aarch64 bundle: $AARCH64_BUNDLE"
+          echo "x64 bundle: $X64_BUNDLE"
+          echo "win bundle: $WIN_BUNDLE"
 
           cat > latest.json << EOF
           {
@@ -150,19 +167,22 @@ jobs:
             "platforms": {
               "darwin-aarch64": {
                 "signature": "$AARCH64_SIG",
-                "url": "https://github.com/frieck/invoxa/releases/download/$TAG/Invoxa_${VERSION}_aarch64.app.tar.gz"
+                "url": "https://github.com/frieck/invoxa/releases/download/$TAG/$AARCH64_BUNDLE"
               },
               "darwin-x86_64": {
                 "signature": "$X64_SIG",
-                "url": "https://github.com/frieck/invoxa/releases/download/$TAG/Invoxa_${VERSION}_x64.app.tar.gz"
+                "url": "https://github.com/frieck/invoxa/releases/download/$TAG/$X64_BUNDLE"
               },
               "windows-x86_64": {
                 "signature": "$WIN_SIG",
-                "url": "https://github.com/frieck/invoxa/releases/download/$TAG/Invoxa_${VERSION}_x64-setup.exe"
+                "url": "https://github.com/frieck/invoxa/releases/download/$TAG/$WIN_BUNDLE"
               }
             }
           }
           EOF
+
+          echo "=== latest.json ==="
+          cat latest.json
 
           gh release upload "$TAG" latest.json --repo frieck/invoxa --clobber
           gh release edit "$TAG" --repo frieck/invoxa --draft=false
