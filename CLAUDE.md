@@ -9,6 +9,43 @@ Instructions for Claude Code when working in this repository.
 - **Never commit or push without explicit confirmation.** Always stage, show a summary of what will change, and ask before running `git commit` or `git push`.
 - **Never add `Co-Authored-By` trailers to commits.** Commits should show only the user as author.
 - **Never install packages without confirming first.** Show the package name and reason, then wait for approval.
+- **Always use Conventional Commits format.** Every commit message must follow the pattern below — the `commit-msg` hook will reject any message that doesn't.
+
+---
+
+## Commit message format (Conventional Commits)
+
+```
+<type>(<optional scope>): <short description in lower-case>
+
+[optional body]
+```
+
+### Allowed types
+
+| Type | When to use |
+|------|-------------|
+| `feat` | New feature visible to the user |
+| `fix` | Bug fix |
+| `chore` | Maintenance, dependency updates, config changes |
+| `docs` | Documentation only |
+| `style` | Formatting, no logic change |
+| `refactor` | Code restructure without feature or fix |
+| `test` | Adding or updating tests |
+| `ci` | CI/CD pipeline changes |
+| `build` | Build system or tooling changes |
+| `perf` | Performance improvement |
+| `revert` | Reverts a previous commit |
+
+### Examples
+
+```
+feat(invoices): add custom payment date when marking as paid
+fix(updater): remove empty password env var from workflow
+ci: opt into Node.js 24 for GitHub Actions runners
+chore: add commitlint and husky for commit enforcement
+docs: update README with GPL-3.0 license
+```
 
 ---
 
