@@ -495,16 +495,16 @@ export default function InvoiceDetail() {
                 <Button
                   leftSection={<IconFileTypePdf size={16} />} variant="light" color="red"
                   onClick={async () => {
-                    if (!printRef.current) return;
+                    if (!invoice || !supplier) return;
                     const month = dayjs(form.values.issue_date).format('MMM-YYYY');
                     const name = supplier?.name?.trim() || 'Invoice';
-                    await exportToPdf(printRef.current, `Invoice ${name} ${month}.pdf`);
+                    await exportToPdf(invoice, supplier, `Invoice ${name} ${month}.pdf`);
                   }}
                 >
                   {t('invoice.exportPdf')}
                 </Button>
               </Group>
-              <Card p={0} radius="lg" withBorder style={{ overflow: 'hidden' }}>
+              <Card p={0} radius="lg" withBorder style={{ overflow: 'auto', height: 'calc(100vh - 280px)' }}>
                 <InvoicePrint
                   ref={printRef}
                   invoice={

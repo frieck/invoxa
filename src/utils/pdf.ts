@@ -1,43 +1,22 @@
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import { pdf } from '@react-pdf/renderer';
+import type { DocumentProps } from '@react-pdf/renderer';
+import { createElement } from 'react';
+import type { ReactElement, JSXElementConstructor } from 'react';
 import { save } from '@tauri-apps/plugin-dialog';
 import { writeFile } from '@tauri-apps/plugin-fs';
+import InvoiceDocument from '../components/Invoice/InvoiceDocument';
+import type { Invoice, Supplier } from '../types';
 
-export async function exportToPdf(element: HTMLElement, defaultFilename: string): Promise<void> {
+export async function exportToPdf(invoice: Invoice, supplier: Supplier, defaultFilename: string): Promise<void> {
   const destPath = await save({
     defaultPath: defaultFilename,
     filters: [{ name: 'PDF', extensions: ['pdf'] }],
   });
   if (!destPath) return;
 
-  const canvas = await html2canvas(element, {
-    scale: 2,
-    useCORS: true,
-    logging: false,
-    backgroundColor: '#ffffff',
-  });
-
-  const imgData = canvas.toDataURL('image/png');
-  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = pdf.internal.pageSize.getHeight();
-  const imgWidth = pageWidth;
-  const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-  let heightLeft = imgHeight;
-  let position = 0;
-
-  pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-  heightLeft -= pageHeight;
-
-  while (heightLeft > 0) {
-    position = heightLeft - imgHeight;
-    pdf.addPage();
-    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
-  }
-
-  const bytes = pdf.output('arraybuffer');
-  await writeFile(destPath, new Uint8Array(bytes));
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const element = createElement(InvoiceDocument, { invoice, supplier }) as unknown as ReactElement<DocumentProps, JSXElementConstructor<any>>;
+  const blob = await pdf(element).toBlob();
+  const buffer = await blob.arrayBuffer();
+  await writeFile(destPath, new Uint8Array(buffer));
 }
