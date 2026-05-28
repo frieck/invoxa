@@ -141,6 +141,7 @@ const ptBR = {
     bankInfoDesc: 'Estes dados aparecerão na seção de pagamento das faturas.',
     companyName: 'Razão Social',
     taxId: 'CNPJ / CPF',
+    bankAddress: 'Endereço do Banco',
     bankName: 'Banco',
     bankAccount: 'Conta Corrente',
     bankRouting: 'Agência',

@@ -141,6 +141,7 @@ const en = {
     bankInfoDesc: 'These details will appear in the payment section of your invoices.',
     companyName: 'Company Name',
     taxId: 'Tax ID / VAT',
+    bankAddress: 'Bank Address',
     bankName: 'Bank Name',
     bankAccount: 'Account Number',
     bankRouting: 'Routing Number (ABA)',

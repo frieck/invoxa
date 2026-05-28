@@ -9,7 +9,7 @@ export async function getSupplier(): Promise<Supplier> {
     return {
       id: 1, name: '', address: '', address2: '', city: '', state: '',
       zip: '', country: '', email: '', phone: '', tax_id: '',
-      bank_name: '', bank_account: '', bank_routing: '', iban: '',
+      bank_name: '', bank_address: '', bank_account: '', bank_routing: '', iban: '',
       swift: '', website: '', notes: '',
     };
   }
@@ -21,12 +21,12 @@ export async function saveSupplier(s: Omit<Supplier, 'id'>): Promise<void> {
   await db.execute(
     `UPDATE supplier SET
       name=?, address=?, address2=?, city=?, state=?, zip=?, country=?,
-      email=?, phone=?, tax_id=?, bank_name=?, bank_account=?, bank_routing=?,
+      email=?, phone=?, tax_id=?, bank_name=?, bank_address=?, bank_account=?, bank_routing=?,
       iban=?, swift=?, website=?, notes=?
     WHERE id=1`,
     [
       s.name, s.address, s.address2, s.city, s.state, s.zip, s.country,
-      s.email, s.phone, s.tax_id, s.bank_name, s.bank_account, s.bank_routing,
+      s.email, s.phone, s.tax_id, s.bank_name, s.bank_address, s.bank_account, s.bank_routing,
       s.iban, s.swift, s.website, s.notes,
     ]
   );

@@ -18,7 +18,7 @@ export default function SupplierPage() {
     initialValues: {
       name: '', address: '', address2: '', city: '', state: '', zip: '',
       country: '', email: '', phone: '', tax_id: '', bank_name: '',
-      bank_account: '', bank_routing: '', iban: '', swift: '', website: '', notes: '',
+      bank_address: '', bank_account: '', bank_routing: '', iban: '', swift: '', website: '', notes: '',
     },
     validate: {
       name: (v) => v.trim() ? null : t('common.required'),
@@ -31,7 +31,7 @@ export default function SupplierPage() {
         name: s.name, address: s.address, address2: s.address2,
         city: s.city, state: s.state, zip: s.zip, country: s.country,
         email: s.email, phone: s.phone, tax_id: s.tax_id,
-        bank_name: s.bank_name, bank_account: s.bank_account,
+        bank_name: s.bank_name, bank_address: s.bank_address, bank_account: s.bank_account,
         bank_routing: s.bank_routing, iban: s.iban, swift: s.swift,
         website: s.website, notes: s.notes,
       });
@@ -122,19 +122,22 @@ export default function SupplierPage() {
               <Text size="sm" c="dimmed" mb="md">{t('supplier.bankInfoDesc')}</Text>
               <Grid gutter="sm">
                 <Grid.Col span={{ base: 12, sm: 6 }}>
+                  <TextInput label={t('supplier.iban')} {...form.getInputProps('iban')} />
+                </Grid.Col>
+                <Grid.Col span={{ base: 12, sm: 6 }}>
+                  <TextInput label={t('supplier.swift')} {...form.getInputProps('swift')} />
+                </Grid.Col>
+                <Grid.Col span={{ base: 12, sm: 6 }}>
                   <TextInput label={t('supplier.bankName')} {...form.getInputProps('bank_name')} />
+                </Grid.Col>
+                <Grid.Col span={{ base: 12, sm: 6 }}>
+                  <TextInput label={t('supplier.bankAddress')} {...form.getInputProps('bank_address')} />
                 </Grid.Col>
                 <Grid.Col span={{ base: 12, sm: 6 }}>
                   <TextInput label={t('supplier.bankAccount')} {...form.getInputProps('bank_account')} />
                 </Grid.Col>
                 <Grid.Col span={{ base: 12, sm: 6 }}>
                   <TextInput label={t('supplier.bankRouting')} {...form.getInputProps('bank_routing')} />
-                </Grid.Col>
-                <Grid.Col span={{ base: 12, sm: 6 }}>
-                  <TextInput label={t('supplier.iban')} {...form.getInputProps('iban')} />
-                </Grid.Col>
-                <Grid.Col span={{ base: 12, sm: 6 }}>
-                  <TextInput label={t('supplier.swift')} {...form.getInputProps('swift')} />
                 </Grid.Col>
               </Grid>
             </Card>

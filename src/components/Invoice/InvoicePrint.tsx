@@ -403,15 +403,16 @@ const InvoicePrint = forwardRef<HTMLDivElement, Props>(({ invoice, supplier }, r
       )}
 
       {/* ── Bank / Payment details ── */}
-      {(supplier.bank_name || supplier.iban || supplier.bank_account) && (
+      {(supplier.iban || supplier.swift || supplier.bank_name || supplier.bank_address || supplier.bank_account || supplier.bank_routing) && (
         <>
           <hr style={{ ...s.divider, marginTop: 20 }} />
           <div style={s.sectionTitle}>Payment Details</div>
-          {supplier.bank_name    && <p style={s.bankRow}>Bank: {supplier.bank_name}</p>}
-          {supplier.bank_account && <p style={s.bankRow}>Account: {supplier.bank_account}</p>}
-          {supplier.bank_routing && <p style={s.bankRow}>Routing / Agency: {supplier.bank_routing}</p>}
           {supplier.iban         && <p style={s.bankRow}>IBAN: {supplier.iban}</p>}
           {supplier.swift        && <p style={s.bankRow}>SWIFT / BIC: {supplier.swift}</p>}
+          {supplier.bank_name    && <p style={s.bankRow}>Bank: {supplier.bank_name}</p>}
+          {supplier.bank_address && <p style={s.bankRow}>Bank Address: {supplier.bank_address}</p>}
+          {supplier.bank_account && <p style={s.bankRow}>Account: {supplier.bank_account}</p>}
+          {supplier.bank_routing && <p style={s.bankRow}>Routing / Agency: {supplier.bank_routing}</p>}
         </>
       )}
     </div>

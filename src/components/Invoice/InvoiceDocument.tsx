@@ -104,7 +104,7 @@ export default function InvoiceDocument({ invoice, supplier }: Props) {
     supplier.tax_id ? `Tax ID: ${supplier.tax_id}` : null,
   ].filter(Boolean) as string[];
 
-  const hasBankDetails = !!(supplier.bank_name || supplier.iban || supplier.bank_account);
+  const hasBankDetails = !!(supplier.iban || supplier.swift || supplier.bank_name || supplier.bank_address || supplier.bank_account || supplier.bank_routing);
 
   return (
     <Document>
@@ -216,11 +216,12 @@ export default function InvoiceDocument({ invoice, supplier }: Props) {
           <View>
             <View style={[s.divider, { marginTop: 16 }]} />
             <Text style={s.sectionTitle}>Payment Details</Text>
-            {supplier.bank_name    && <Text style={s.bankRow}>Bank: {supplier.bank_name}</Text>}
-            {supplier.bank_account && <Text style={s.bankRow}>Account: {supplier.bank_account}</Text>}
-            {supplier.bank_routing && <Text style={s.bankRow}>Routing / Agency: {supplier.bank_routing}</Text>}
             {supplier.iban         && <Text style={s.bankRow}>IBAN: {supplier.iban}</Text>}
             {supplier.swift        && <Text style={s.bankRow}>SWIFT / BIC: {supplier.swift}</Text>}
+            {supplier.bank_name    && <Text style={s.bankRow}>Bank: {supplier.bank_name}</Text>}
+            {supplier.bank_address && <Text style={s.bankRow}>Bank Address: {supplier.bank_address}</Text>}
+            {supplier.bank_account && <Text style={s.bankRow}>Account: {supplier.bank_account}</Text>}
+            {supplier.bank_routing && <Text style={s.bankRow}>Routing / Agency: {supplier.bank_routing}</Text>}
           </View>
         )}
 
