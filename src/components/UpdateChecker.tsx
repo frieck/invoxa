@@ -6,6 +6,7 @@ import { Button, Text, Progress, Stack, Group } from '@mantine/core';
 import { IconDownload, IconRefresh } from '@tabler/icons-react';
 import { check, type Update } from '@tauri-apps/plugin-updater';
 import { relaunch } from '@tauri-apps/plugin-process';
+import { getVersion } from '@tauri-apps/api/app';
 
 function UpdateProgress({ update }: { update: Update }) {
   const { t } = useTranslation();
@@ -19,13 +20,18 @@ function UpdateProgress({ update }: { update: Update }) {
     update.downloadAndInstall((event) => {
       if (event.event === 'Started') {
         total = event.data.contentLength ?? 0;
+        notifications.show({ id: 'upd-dbg-start', title: '[debug] download started', message: `size: ${total} bytes`, color: 'gray', autoClose: 8000 });
       } else if (event.event === 'Progress') {
         downloaded += event.data.chunkLength;
         if (total > 0) setProgress(Math.round((downloaded / total) * 100));
       } else if (event.event === 'Finished') {
+        notifications.show({ id: 'upd-dbg-done', title: '[debug] download finished', message: 'setDone(true) called', color: 'gray', autoClose: 8000 });
         setDone(true);
       }
-    }).catch(() => setDone(true));
+    }).catch((err) => {
+      notifications.show({ id: 'upd-dbg-err', title: '[debug] downloadAndInstall error', message: String(err), color: 'red', autoClose: false });
+      setDone(true);
+    });
   }, [update]);
 
   return (
@@ -67,8 +73,17 @@ export default function UpdateChecker() {
   useEffect(() => {
     if (import.meta.env.DEV) return;
 
+    getVersion().then((currentVersion) => {
+      notifications.show({ id: 'upd-dbg-ver', title: '[debug] app version', message: `installed: ${currentVersion}`, color: 'gray', autoClose: 10000 });
+    });
+
     check().then((update) => {
-      if (!update) return;
+      if (!update) {
+        notifications.show({ id: 'upd-dbg-noupdate', title: '[debug] no update', message: 'check() returned null', color: 'gray', autoClose: 8000 });
+        return;
+      }
+
+      notifications.show({ id: 'upd-dbg-found', title: '[debug] update found', message: `remote: ${update.version} | current: ${update.currentVersion}`, color: 'orange', autoClose: false });
 
       notifications.show({
         id: 'update-available',
