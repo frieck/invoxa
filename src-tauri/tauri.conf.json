@@ -43,6 +43,12 @@
   "plugins": {
     "sql": {
       "preloadConnections": ["sqlite:invoices.db"]
+    },
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IENBNDgwNUI3RTRBREVCQjkKUldTNTY2M2t0d1ZJeXNoRjUySDdPMHZrMnZ5bFU1NWVmdjBZOXUxNTFrTU9RSG1aOWMrTjkwcEMK",
+      "endpoints": [
+        "https://github.com/frieck/invoxa/releases/latest/download/latest.json"
+      ]
     }
   }
 }

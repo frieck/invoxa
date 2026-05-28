@@ -12,6 +12,7 @@ import Supplier from './pages/Supplier';
 import Templates from './pages/Templates';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
+import UpdateChecker from './components/UpdateChecker';
 
 const colorSchemeManager = localStorageColorSchemeManager({ key: 'color-scheme' });
 
@@ -19,6 +20,7 @@ export default function App() {
   return (
     <MantineProvider theme={theme} colorSchemeManager={colorSchemeManager} defaultColorScheme="auto">
       <Notifications position="top-right" zIndex={9999} />
+      <UpdateChecker />
       <ModalsProvider>
         <BrowserRouter>
           <Routes>

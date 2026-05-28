@@ -34,7 +34,7 @@ jobs:
           draft: true
           prerelease: false
 
-  # ── macOS builds (upload assets to existing release) ─────────────────────
+  # ── macOS builds ─────────────────────────────────────────────────────────
   build-macos:
     needs: create-release
     runs-on: macos-latest
@@ -62,9 +62,20 @@ jobs:
 
       - run: yarn install --frozen-lockfile
 
+      - name: Set version from tag
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          node -e "
+            const fs = require('fs');
+            const cfg = JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json', 'utf8'));
+            cfg.version = '$VERSION';
+            fs.writeFileSync('src-tauri/tauri.conf.json', JSON.stringify(cfg, null, 2));
+          "
+
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
           args: --target ${{ matrix.target }}
@@ -89,8 +100,65 @@ jobs:
 
       - run: yarn install --frozen-lockfile
 
+      - name: Set version from tag
+        shell: bash
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          node -e "
+            const fs = require('fs');
+            const cfg = JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json', 'utf8'));
+            cfg.version = '$VERSION';
+            fs.writeFileSync('src-tauri/tauri.conf.json', JSON.stringify(cfg, null, 2));
+          "
+
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
+
+  # ── Publish: generate latest.json and undraft the release ────────────────
+  publish-release:
+    needs: [create-release, build-macos, build-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate latest.json and publish release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG=${{ github.ref_name }}
+          VERSION=${TAG#v}
+
+          gh release download "$TAG" --repo frieck/invoxa -p "*.sig" -D /tmp/sigs || true
+
+          AARCH64_SIG=$(cat "/tmp/sigs/Invoxa_${VERSION}_aarch64.app.tar.gz.sig" 2>/dev/null || echo "")
+          X64_SIG=$(cat "/tmp/sigs/Invoxa_${VERSION}_x64.app.tar.gz.sig" 2>/dev/null || echo "")
+          WIN_SIG=$(cat "/tmp/sigs/Invoxa_${VERSION}_x64-setup.exe.sig" 2>/dev/null || echo "")
+
+          cat > latest.json << EOF
+          {
+            "version": "$VERSION",
+            "notes": "See release notes at https://github.com/frieck/invoxa/releases/tag/$TAG",
+            "pub_date": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "platforms": {
+              "darwin-aarch64": {
+                "signature": "$AARCH64_SIG",
+                "url": "https://github.com/frieck/invoxa/releases/download/$TAG/Invoxa_${VERSION}_aarch64.app.tar.gz"
+              },
+              "darwin-x86_64": {
+                "signature": "$X64_SIG",
+                "url": "https://github.com/frieck/invoxa/releases/download/$TAG/Invoxa_${VERSION}_x64.app.tar.gz"
+              },
+              "windows-x86_64": {
+                "signature": "$WIN_SIG",
+                "url": "https://github.com/frieck/invoxa/releases/download/$TAG/Invoxa_${VERSION}_x64-setup.exe"
+              }
+            }
+          }
+          EOF
+
+          gh release upload "$TAG" latest.json --repo frieck/invoxa --clobber
+          gh release edit "$TAG" --repo frieck/invoxa --draft=false

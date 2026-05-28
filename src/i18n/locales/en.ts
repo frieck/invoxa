@@ -217,6 +217,15 @@ const en = {
     schemeLight: 'Light',
     schemeDark: 'Dark',
   },
+  update: {
+    available: 'Update available',
+    availableMsg: 'Version {{version}} is ready to install.',
+    install: 'Install now',
+    installing: 'Installing update',
+    downloading: 'Downloading update...',
+    readyToInstall: 'Update downloaded. Restart the app to apply.',
+    restartAndInstall: 'Restart & Install',
+  },
 } as const;
 
 export default en;

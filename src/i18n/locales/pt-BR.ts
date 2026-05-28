@@ -217,6 +217,15 @@ const ptBR = {
     schemeLight: 'Claro',
     schemeDark: 'Escuro',
   },
+  update: {
+    available: 'Atualização disponível',
+    availableMsg: 'A versão {{version}} está pronta para instalar.',
+    install: 'Instalar agora',
+    installing: 'Instalando atualização',
+    downloading: 'Baixando atualização...',
+    readyToInstall: 'Atualização baixada. Reinicie o app para aplicar.',
+    restartAndInstall: 'Reiniciar e Instalar',
+  },
 } as const;
 
 export default ptBR;
