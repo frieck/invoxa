@@ -12,7 +12,6 @@ Desktop app for generating professional invoices, built with Tauri v2 + React + 
 - **Supplier profile** — your company info and bank details printed on every invoice
 - **Invoice templates** — pre-populate new invoices with default line items
 - **PDF export** — choose where to save via native file dialog
-- **Print** — native system print dialog
 - **Reports** — monthly and annual revenue charts and tables
 - **Bilingual** — Portuguese (BR) and English interface; invoice documents always printed in English
 - **Light / dark / auto theme** — follows the OS by default, overridable per user
@@ -92,4 +91,8 @@ src-tauri/
 
 ## License
 
-Private — all rights reserved.
+Copyright (C) 2026 Felipe Rieck
+
+This program is free software: you can redistribute it and/or modify it under the terms of the [GNU General Public License v3.0](LICENSE) as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
