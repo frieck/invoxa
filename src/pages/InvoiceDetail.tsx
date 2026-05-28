@@ -496,7 +496,9 @@ export default function InvoiceDetail() {
                   leftSection={<IconFileTypePdf size={16} />} variant="light" color="red"
                   onClick={async () => {
                     if (!printRef.current) return;
-                    await exportToPdf(printRef.current, `invoice-${form.values.invoice_number}.pdf`);
+                    const month = dayjs(form.values.issue_date).format('MMM-YYYY');
+                    const name = supplier?.name?.trim() || 'Invoice';
+                    await exportToPdf(printRef.current, `Invoice ${name} ${month}.pdf`);
                   }}
                 >
                   {t('invoice.exportPdf')}
