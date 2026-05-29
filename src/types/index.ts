@@ -10,6 +10,7 @@ export interface Supplier {
   email: string;
   phone: string;
   tax_id: string;
+  payment_provider: string;
   bank_name: string;
   bank_address: string;
   bank_account: string;

@@ -25,6 +25,7 @@ const s = StyleSheet.create({
   supplierName: { fontSize: 16, fontFamily: 'Helvetica-Bold', color: c.dark, marginBottom: 6 },
   supplierMeta: { color: c.muted, fontSize: 9, marginBottom: 2 },
   invoiceRight: { alignItems: 'flex-end' }, // kept for reference, replaced by headerRight
+  invoiceMonthYear: { fontSize: 8, fontFamily: 'Helvetica-Bold', color: c.light, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 2 },
   invoiceTitle: { fontSize: 28, fontFamily: 'Helvetica-Bold', color: c.dark, letterSpacing: -0.5, marginBottom: 10 },
   metaRow: { flexDirection: 'row', gap: 6, marginBottom: 2 },
   metaLabel: { color: c.light, fontSize: 9 },
@@ -77,6 +78,10 @@ interface Props {
 }
 
 export default function InvoiceDocument({ invoice, supplier }: Props) {
+  const monthYear = invoice.issue_date
+    ? new Date(invoice.issue_date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    : '';
+
   const items = invoice.items ?? [];
   const subtotal = calcSubtotal(items);
   const discountAmt = calcDiscount(subtotal, invoice.discount, invoice.discount_type);
@@ -104,7 +109,7 @@ export default function InvoiceDocument({ invoice, supplier }: Props) {
     supplier.tax_id ? `Tax ID: ${supplier.tax_id}` : null,
   ].filter(Boolean) as string[];
 
-  const hasBankDetails = !!(supplier.iban || supplier.swift || supplier.bank_name || supplier.bank_address || supplier.bank_account || supplier.bank_routing);
+  const hasBankDetails = !!(supplier.payment_provider || supplier.bank_name || supplier.bank_address || supplier.bank_account || supplier.bank_routing || supplier.iban || supplier.swift);
 
   return (
     <Document>
@@ -118,6 +123,7 @@ export default function InvoiceDocument({ invoice, supplier }: Props) {
           </View>
 
           <View style={s.headerRight}>
+            {!!monthYear && <Text style={s.invoiceMonthYear}>{monthYear}</Text>}
             <Text style={s.invoiceTitle}>INVOICE</Text>
             <View style={s.metaRow}>
               <Text style={s.metaLabel}>Invoice #</Text>
@@ -216,12 +222,15 @@ export default function InvoiceDocument({ invoice, supplier }: Props) {
           <View>
             <View style={[s.divider, { marginTop: 16 }]} />
             <Text style={s.sectionTitle}>Payment Details</Text>
-            {supplier.iban         && <Text style={s.bankRow}>IBAN: {supplier.iban}</Text>}
-            {supplier.swift        && <Text style={s.bankRow}>SWIFT / BIC: {supplier.swift}</Text>}
-            {supplier.bank_name    && <Text style={s.bankRow}>Bank: {supplier.bank_name}</Text>}
-            {supplier.bank_address && <Text style={s.bankRow}>Bank Address: {supplier.bank_address}</Text>}
-            {supplier.bank_account && <Text style={s.bankRow}>Account: {supplier.bank_account}</Text>}
-            {supplier.bank_routing && <Text style={s.bankRow}>Routing / Agency: {supplier.bank_routing}</Text>}
+            {!!supplier.name           && <Text style={s.bankRow}>Account Holder: {supplier.name}</Text>}
+            {!!supplier.payment_provider && <Text style={s.bankRow}>Payment Provider: {supplier.payment_provider}</Text>}
+            {!!supplier.bank_name      && <Text style={s.bankRow}>Receiving Bank: {supplier.bank_name}</Text>}
+            {!!supplier.bank_address   && <Text style={s.bankRow}>Bank Address: {supplier.bank_address}</Text>}
+            {!!supplier.bank_account   && <Text style={s.bankRow}>Account Number: {supplier.bank_account}</Text>}
+            {!!supplier.bank_routing   && <Text style={s.bankRow}>Routing Number (ACH/Wire): {supplier.bank_routing}</Text>}
+            {!!supplier.iban           && <Text style={s.bankRow}>IBAN: {supplier.iban}</Text>}
+            {!!supplier.swift          && <Text style={s.bankRow}>SWIFT / BIC: {supplier.swift}</Text>}
+            {!!invoice.currency        && <Text style={s.bankRow}>Currency: {invoice.currency}</Text>}
           </View>
         )}
 

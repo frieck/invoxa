@@ -50,6 +50,15 @@ const s = {
     textAlign: 'right' as const,
   },
 
+  invoiceMonthYear: {
+    fontSize: 11,
+    fontWeight: 600,
+    color: '#9ca3af',
+    letterSpacing: 1.5,
+    textTransform: 'uppercase' as const,
+    marginBottom: 2,
+  } as React.CSSProperties,
+
   invoiceTitle: {
     fontSize: 38,
     fontWeight: 800,
@@ -251,6 +260,10 @@ const InvoicePrint = forwardRef<HTMLDivElement, Props>(({ invoice, supplier }, r
   const { i18n } = useTranslation();
   const t = i18n.getFixedT('en');
 
+  const monthYear = invoice.issue_date
+    ? new Date(invoice.issue_date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    : '';
+
   const items = invoice.items ?? [];
   const subtotal = calcSubtotal(items);
   const discountAmt = calcDiscount(subtotal, invoice.discount, invoice.discount_type);
@@ -292,6 +305,7 @@ const InvoicePrint = forwardRef<HTMLDivElement, Props>(({ invoice, supplier }, r
 
         {/* Invoice meta */}
         <div style={s.invoiceMeta}>
+          {monthYear && <div style={s.invoiceMonthYear}>{monthYear}</div>}
           <div style={s.invoiceTitle}>INVOICE</div>
           {[
             { label: 'Invoice #', value: invoice.invoice_number },
@@ -403,16 +417,19 @@ const InvoicePrint = forwardRef<HTMLDivElement, Props>(({ invoice, supplier }, r
       )}
 
       {/* ── Bank / Payment details ── */}
-      {(supplier.iban || supplier.swift || supplier.bank_name || supplier.bank_address || supplier.bank_account || supplier.bank_routing) && (
+      {(supplier.payment_provider || supplier.bank_name || supplier.bank_address || supplier.bank_account || supplier.bank_routing || supplier.iban || supplier.swift) && (
         <>
           <hr style={{ ...s.divider, marginTop: 20 }} />
           <div style={s.sectionTitle}>Payment Details</div>
+          {supplier.name         && <p style={s.bankRow}>Account Holder: {supplier.name}</p>}
+          {supplier.payment_provider && <p style={s.bankRow}>Payment Provider: {supplier.payment_provider}</p>}
+          {supplier.bank_name    && <p style={s.bankRow}>Receiving Bank: {supplier.bank_name}</p>}
+          {supplier.bank_address && <p style={s.bankRow}>Bank Address: {supplier.bank_address}</p>}
+          {supplier.bank_account && <p style={s.bankRow}>Account Number: {supplier.bank_account}</p>}
+          {supplier.bank_routing && <p style={s.bankRow}>Routing Number (ACH/Wire): {supplier.bank_routing}</p>}
           {supplier.iban         && <p style={s.bankRow}>IBAN: {supplier.iban}</p>}
           {supplier.swift        && <p style={s.bankRow}>SWIFT / BIC: {supplier.swift}</p>}
-          {supplier.bank_name    && <p style={s.bankRow}>Bank: {supplier.bank_name}</p>}
-          {supplier.bank_address && <p style={s.bankRow}>Bank Address: {supplier.bank_address}</p>}
-          {supplier.bank_account && <p style={s.bankRow}>Account: {supplier.bank_account}</p>}
-          {supplier.bank_routing && <p style={s.bankRow}>Routing / Agency: {supplier.bank_routing}</p>}
+          {invoice.currency      && <p style={s.bankRow}>Currency: {invoice.currency}</p>}
         </>
       )}
     </div>
