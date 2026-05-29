@@ -75,15 +75,11 @@ jobs:
             fs.writeFileSync('src-tauri/tauri.conf.json', JSON.stringify(cfg, null, 2));
           "
 
-      - name: Decode signing key into env
-        run: node -e "const fs=require('fs');const raw=Buffer.from(process.env.TAURI_SIGNING_PRIVATE_KEY,'base64').toString('utf8');const sep='KEYEOF'+Date.now();fs.appendFileSync(process.env.GITHUB_ENV,'TAURI_SIGNING_PRIVATE_KEY<<'+sep+'\n'+raw+'\n'+sep+'\n');console.log('first line:',raw.split('\n')[0]);"
-        env:
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_SIGNING_PRIVATE_KEY: ${{ env.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ""
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
           args: --target ${{ matrix.target }}
@@ -123,15 +119,11 @@ jobs:
             fs.writeFileSync('src-tauri/tauri.conf.json', JSON.stringify(cfg, null, 2));
           "
 
-      - name: Decode signing key into env
-        run: node -e "const fs=require('fs');const raw=Buffer.from(process.env.TAURI_SIGNING_PRIVATE_KEY,'base64').toString('utf8');const sep='KEYEOF'+Date.now();fs.appendFileSync(process.env.GITHUB_ENV,'TAURI_SIGNING_PRIVATE_KEY<<'+sep+'\n'+raw+'\n'+sep+'\n');console.log('first line:',raw.split('\n')[0]);"
-        env:
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_SIGNING_PRIVATE_KEY: ${{ env.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ""
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
           args: --bundles nsis
