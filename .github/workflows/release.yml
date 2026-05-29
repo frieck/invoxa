@@ -76,17 +76,7 @@ jobs:
           "
 
       - name: Write signing key to file
-        run: |
-          python3 -c "
-import base64, os
-key = os.environ['TAURI_SIGNING_PRIVATE_KEY']
-decoded = base64.b64decode(key)
-os.makedirs('$RUNNER_TEMP/tauri-keys', exist_ok=True)
-path = '$RUNNER_TEMP/tauri-keys/invoxa.key'
-open(path, 'wb').write(decoded)
-first = decoded.decode('utf-8').splitlines()[0]
-print('Key first line:', first)
-"
+        run: node -e "const fs=require('fs'),p=require('path'),d=Buffer.from(process.env.TAURI_SIGNING_PRIVATE_KEY,'base64'),dir=p.join(process.env.RUNNER_TEMP,'tauri-keys');fs.mkdirSync(dir,{recursive:true});fs.writeFileSync(p.join(dir,'invoxa.key'),d);console.log('Key first line:',d.toString().split('\n')[0]);"
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
 
@@ -134,17 +124,7 @@ print('Key first line:', first)
           "
 
       - name: Write signing key to file
-        run: |
-          python3 -c "
-import base64, os
-key = os.environ['TAURI_SIGNING_PRIVATE_KEY']
-decoded = base64.b64decode(key)
-os.makedirs(os.path.join(os.environ['RUNNER_TEMP'], 'tauri-keys'), exist_ok=True)
-path = os.path.join(os.environ['RUNNER_TEMP'], 'tauri-keys', 'invoxa.key')
-open(path, 'wb').write(decoded)
-first = decoded.decode('utf-8').splitlines()[0]
-print('Key first line:', first)
-"
+        run: node -e "const fs=require('fs'),p=require('path'),d=Buffer.from(process.env.TAURI_SIGNING_PRIVATE_KEY,'base64'),dir=p.join(process.env.RUNNER_TEMP,'tauri-keys');fs.mkdirSync(dir,{recursive:true});fs.writeFileSync(p.join(dir,'invoxa.key'),d);console.log('Key first line:',d.toString().split('\n')[0]);"
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
 
