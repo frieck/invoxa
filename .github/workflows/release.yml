@@ -77,17 +77,23 @@ jobs:
 
       - name: Write signing key to file
         run: |
-          mkdir -p /tmp/tauri-keys
-          echo "$TAURI_SIGNING_PRIVATE_KEY" | base64 -d > /tmp/tauri-keys/invoxa.key
-          chmod 600 /tmp/tauri-keys/invoxa.key
-          echo "Key first line: $(head -1 /tmp/tauri-keys/invoxa.key)"
+          python3 -c "
+import base64, os
+key = os.environ['TAURI_SIGNING_PRIVATE_KEY']
+decoded = base64.b64decode(key)
+os.makedirs('$RUNNER_TEMP/tauri-keys', exist_ok=True)
+path = '$RUNNER_TEMP/tauri-keys/invoxa.key'
+open(path, 'wb').write(decoded)
+first = decoded.decode('utf-8').splitlines()[0]
+print('Key first line:', first)
+"
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
 
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_SIGNING_PRIVATE_KEY_PATH: /tmp/tauri-keys/invoxa.key
+          TAURI_SIGNING_PRIVATE_KEY_PATH: ${{ runner.temp }}/tauri-keys/invoxa.key
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
           args: --target ${{ matrix.target }}
@@ -128,18 +134,24 @@ jobs:
           "
 
       - name: Write signing key to file
-        shell: bash
         run: |
-          mkdir -p /tmp/tauri-keys
-          echo "$TAURI_SIGNING_PRIVATE_KEY" | base64 -d > /tmp/tauri-keys/invoxa.key
-          echo "Key first line: $(head -1 /tmp/tauri-keys/invoxa.key)"
+          python3 -c "
+import base64, os
+key = os.environ['TAURI_SIGNING_PRIVATE_KEY']
+decoded = base64.b64decode(key)
+os.makedirs(os.path.join(os.environ['RUNNER_TEMP'], 'tauri-keys'), exist_ok=True)
+path = os.path.join(os.environ['RUNNER_TEMP'], 'tauri-keys', 'invoxa.key')
+open(path, 'wb').write(decoded)
+first = decoded.decode('utf-8').splitlines()[0]
+print('Key first line:', first)
+"
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
 
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_SIGNING_PRIVATE_KEY_PATH: /tmp/tauri-keys/invoxa.key
+          TAURI_SIGNING_PRIVATE_KEY_PATH: ${{ runner.temp }}/tauri-keys/invoxa.key
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
           args: --bundles nsis
