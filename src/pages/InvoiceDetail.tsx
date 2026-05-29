@@ -504,7 +504,7 @@ export default function InvoiceDetail() {
                   {t('invoice.exportPdf')}
                 </Button>
               </Group>
-              <Card p={0} radius="lg" withBorder style={{ overflow: 'auto', height: 'calc(100vh - 280px)' }}>
+              <Card p={0} radius="lg" withBorder className="invoice-preview" style={{ overflow: 'auto', height: 'calc(100vh - 280px)' }}>
                 <InvoicePrint
                   ref={printRef}
                   invoice={
