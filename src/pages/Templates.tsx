@@ -7,6 +7,7 @@ import {
 import { useForm } from '@mantine/form';
 import { AgGridReact } from 'ag-grid-react';
 import type { ColDef, ICellRendererParams } from 'ag-grid-community';
+import { agTheme } from '../utils/agTheme';
 import { IconPlus, IconEdit, IconTrash } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { modals } from '@mantine/modals';
@@ -15,8 +16,6 @@ import {
 } from '../db/templates';
 import type { TemplateItem } from '../types';
 import { formatCurrency } from '../utils/format';
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-quartz.css';
 
 const emptyItem = (): Omit<TemplateItem, 'id'> => ({
   description: '', quantity: 1, unit_price: 0, unit: 'hrs', sort_order: 0,
@@ -131,10 +130,11 @@ export default function Templates() {
       </Group>
 
       <Card p="md" radius="lg" withBorder>
-        <div className="ag-theme-quartz" style={{ height: 440 }}>
+        <div style={{ height: 440 }}>
           <AgGridReact
-            ref={gridRef} rowData={items} columnDefs={columnDefs}
-            defaultColDef={{ sortable: true, filter: false, resizable: true }}
+            ref={gridRef} theme={agTheme} rowData={items} columnDefs={columnDefs}
+            defaultColDef={{ sortable: true, filter: false, resizable: true, cellStyle: { display: 'flex', alignItems: 'center' } }}
+            columnTypes={{ rightAligned: { cellStyle: { justifyContent: 'flex-end' } } }}
             rowHeight={48} animateRows
           />
         </div>

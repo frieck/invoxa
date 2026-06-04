@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Stack, Title, Group, Button, TextInput, Select, Card, Text, Badge,
@@ -7,6 +7,7 @@ import {
 import { DatePickerInput } from '@mantine/dates';
 import { AgGridReact } from 'ag-grid-react';
 import type { ColDef, ICellRendererParams } from 'ag-grid-community';
+import { agTheme } from '../utils/agTheme';
 import {
   IconPlus, IconSearch, IconDots, IconEye, IconEdit,
   IconCheck, IconTrash, IconFileExport, IconFileTypePdf, IconRefresh,
@@ -18,8 +19,25 @@ import { getInvoices, markAsPaid, deleteInvoice, updateStatus } from '../db/invo
 import type { Invoice, InvoiceStatus } from '../types';
 import { STATUS_COLORS, STATUS_LABELS } from '../types';
 import { formatCurrency, formatDate } from '../utils/format';
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-quartz.css';
+
+type YearGroupRow = { _yearGroup: string };
+
+function YearGroupRenderer({ data }: ICellRendererParams) {
+  return (
+    <Group
+      px="md"
+      gap="xs"
+      align="center"
+      style={{
+        height: '100%',
+        background: 'light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-6))',
+        borderBottom: '1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4))',
+      }}
+    >
+      <Text size="sm" fw={700} c="dimmed">{(data as YearGroupRow)._yearGroup}</Text>
+    </Group>
+  );
+}
 
 export default function Invoices() {
   const { t } = useTranslation();
@@ -29,7 +47,6 @@ export default function Invoices() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-
   const load = useCallback(async () => {
     setLoading(true);
     const data = await getInvoices();
@@ -39,14 +56,31 @@ export default function Invoices() {
 
   useEffect(() => { load(); }, [load]);
 
-  const filtered = invoices.filter((inv) => {
+  const filtered = useMemo(() => invoices.filter((inv) => {
     const q = search.toLowerCase();
     const matchSearch =
       inv.invoice_number.toLowerCase().includes(q) ||
       (inv.client_name ?? '').toLowerCase().includes(q);
     const matchStatus = !statusFilter || inv.status === statusFilter;
     return matchSearch && matchStatus;
-  });
+  }), [invoices, search, statusFilter]);
+
+  const groupedRows = useMemo(() => {
+    const sorted = [...filtered].sort((a, b) =>
+      (b.issue_date ?? '').localeCompare(a.issue_date ?? '')
+    );
+    const rows: (Invoice | YearGroupRow)[] = [];
+    let lastYear = '';
+    for (const inv of sorted) {
+      const year = inv.issue_date?.slice(0, 4) ?? '—';
+      if (year !== lastYear) {
+        rows.push({ _yearGroup: year });
+        lastYear = year;
+      }
+      rows.push(inv);
+    }
+    return rows;
+  }, [filtered]);
 
   const handleMarkPaid = useCallback((id: number) => {
     let paymentDate = new Date();
@@ -111,7 +145,7 @@ export default function Invoices() {
     {
       field: 'invoice_number', headerName: t('invoice.number'), width: 140,
       cellRenderer: (p: ICellRendererParams<Invoice>) => (
-        <Text size="sm" fw={600} c="brand.7" style={{ cursor: 'pointer' }}
+        <Text size="sm" fw={600} c="brand.4" style={{ cursor: 'pointer' }}
           onClick={() => navigate(`/invoices/${p.data?.id}`)}>
           #{p.value}
         </Text>
@@ -233,14 +267,24 @@ export default function Invoices() {
           </Tooltip>
         </Group>
 
-        <div className="ag-theme-quartz" style={{ height: 480 }}>
+        <div style={{ height: 480 }}>
           <AgGridReact
             ref={gridRef}
-            rowData={filtered}
+            theme={agTheme}
+            rowData={groupedRows as Invoice[]}
             columnDefs={columnDefs}
-            defaultColDef={{ sortable: true, filter: true, resizable: true }}
+            defaultColDef={{ sortable: true, filter: true, resizable: true, cellStyle: { display: 'flex', alignItems: 'center' } }}
+            columnTypes={{ rightAligned: { cellStyle: { justifyContent: 'flex-end' } } }}
             pagination paginationPageSize={15}
-            rowHeight={48} animateRows suppressCellFocus
+            getRowHeight={(params) => (params.data as any)?._yearGroup ? 34 : 48}
+            getRowId={(params) =>
+              (params.data as any)?._yearGroup
+                ? `year-${(params.data as any)._yearGroup}`
+                : String((params.data as Invoice).id)
+            }
+            isFullWidthRow={(params) => !!(params.rowNode.data as any)?._yearGroup}
+            fullWidthCellRenderer={YearGroupRenderer}
+            animateRows suppressCellFocus
           />
         </div>
       </Card>

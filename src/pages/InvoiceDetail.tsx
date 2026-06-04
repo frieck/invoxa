@@ -12,6 +12,7 @@ import { notifications } from '@mantine/notifications';
 import { modals } from '@mantine/modals';
 import { AgGridReact } from 'ag-grid-react';
 import type { ColDef, ICellRendererParams } from 'ag-grid-community';
+import { agTheme } from '../utils/agTheme';
 import {
   IconArrowLeft, IconDeviceFloppy, IconPlus, IconTrash,
   IconCheck, IconFileTypePdf, IconCopy,
@@ -31,8 +32,6 @@ import {
 import StatusBadge from '../components/Invoice/StatusBadge';
 import InvoicePrint from '../components/Invoice/InvoicePrint';
 import { exportToPdf } from '../utils/pdf';
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-quartz.css';
 
 type ItemRow = InvoiceItem & { _id: string };
 
@@ -399,10 +398,12 @@ export default function InvoiceDetail() {
                       </Group>
                     )}
                   </Group>
-                  <div className="ag-theme-quartz" style={{ height: 280 }}>
+                  <div style={{ height: 280 }}>
                     <AgGridReact
-                      ref={gridRef} rowData={items} columnDefs={columnDefs}
-                      defaultColDef={{ resizable: true }} rowHeight={42}
+                      ref={gridRef} theme={agTheme} rowData={items} columnDefs={columnDefs}
+                      defaultColDef={{ resizable: true, cellStyle: { display: 'flex', alignItems: 'center' } }}
+                      columnTypes={{ rightAligned: { cellStyle: { justifyContent: 'flex-end' } } }}
+                      rowHeight={42}
                       singleClickEdit stopEditingWhenCellsLoseFocus
                       suppressCellFocus={readonly} getRowId={(p) => p.data._id}
                     />

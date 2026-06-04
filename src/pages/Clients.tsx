@@ -7,14 +7,13 @@ import {
 import { useForm } from '@mantine/form';
 import { AgGridReact } from 'ag-grid-react';
 import type { ColDef, ICellRendererParams } from 'ag-grid-community';
+import { agTheme } from '../utils/agTheme';
 import { IconPlus, IconEdit, IconTrash } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { modals } from '@mantine/modals';
 import { getClients, createClient, updateClient, deleteClient } from '../db/clients';
 import type { Client } from '../types';
 import { formatDate } from '../utils/format';
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-quartz.css';
 
 const emptyClient = (): Omit<Client, 'id' | 'created_at' | 'updated_at'> => ({
   name: '', address: '', address2: '', city: '', state: '',
@@ -123,10 +122,10 @@ export default function Clients() {
       </Group>
 
       <Card p="md" radius="lg" withBorder>
-        <div className="ag-theme-quartz" style={{ height: 520 }}>
+        <div style={{ height: 520 }}>
           <AgGridReact
-            ref={gridRef} rowData={clients} columnDefs={columnDefs}
-            defaultColDef={{ sortable: true, filter: true, resizable: true }}
+            ref={gridRef} theme={agTheme} rowData={clients} columnDefs={columnDefs}
+            defaultColDef={{ sortable: true, filter: true, resizable: true, cellStyle: { display: 'flex', alignItems: 'center' } }}
             pagination paginationPageSize={20} rowHeight={48} animateRows
           />
         </div>
