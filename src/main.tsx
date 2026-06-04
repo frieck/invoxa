@@ -13,8 +13,6 @@ import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
 import '@mantine/notifications/styles.css';
 import '@mantine/charts/styles.css';
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-quartz.css';
 import './global.css';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
