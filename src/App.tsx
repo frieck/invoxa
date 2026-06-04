@@ -1,4 +1,5 @@
-import { MantineProvider, localStorageColorSchemeManager } from '@mantine/core';
+import { useEffect } from 'react';
+import { MantineProvider, localStorageColorSchemeManager, useComputedColorScheme } from '@mantine/core';
 import { ModalsProvider } from '@mantine/modals';
 import { Notifications } from '@mantine/notifications';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
@@ -16,9 +17,18 @@ import UpdateChecker from './components/UpdateChecker';
 
 const colorSchemeManager = localStorageColorSchemeManager({ key: 'color-scheme' });
 
+function AgThemeSync() {
+  const scheme = useComputedColorScheme('light');
+  useEffect(() => {
+    document.documentElement.dataset.agThemeMode = scheme;
+  }, [scheme]);
+  return null;
+}
+
 export default function App() {
   return (
     <MantineProvider theme={theme} colorSchemeManager={colorSchemeManager} defaultColorScheme="auto">
+      <AgThemeSync />
       <Notifications position="top-right" zIndex={9999} />
       <UpdateChecker />
       <ModalsProvider>
