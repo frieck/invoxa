@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="src-tauri/icons/128x128@2x.png" alt="Invoxa app icon" width="256" height="256">
+</p>
+
 # Invoxa
 
 Desktop app for generating professional invoices, built with Tauri v2 + React + SQLite.
