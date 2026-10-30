@@ -109,7 +109,7 @@ export default function InvoiceDocument({ invoice, supplier }: Props) {
     supplier.tax_id ? `Tax ID: ${supplier.tax_id}` : null,
   ].filter(Boolean) as string[];
 
-  const hasBankDetails = !!(supplier.payment_provider || supplier.bank_name || supplier.bank_address || supplier.bank_account || supplier.bank_routing || supplier.iban || supplier.swift);
+  const hasBankDetails = !!(supplier.payment_provider || supplier.payment_method || supplier.bank_name || supplier.bank_address || supplier.bank_account || supplier.bank_routing || supplier.iban || supplier.swift);
 
   return (
     <Document>
@@ -224,10 +224,11 @@ export default function InvoiceDocument({ invoice, supplier }: Props) {
             <Text style={s.sectionTitle}>Payment Details</Text>
             {!!supplier.name           && <Text style={s.bankRow}>Account Holder: {supplier.name}</Text>}
             {!!supplier.payment_provider && <Text style={s.bankRow}>Payment Provider: {supplier.payment_provider}</Text>}
+            {!!supplier.payment_method && <Text style={s.bankRow}>Payment Method: {supplier.payment_method}</Text>}
             {!!supplier.bank_name      && <Text style={s.bankRow}>Receiving Bank: {supplier.bank_name}</Text>}
             {!!supplier.bank_address   && <Text style={s.bankRow}>Bank Address: {supplier.bank_address}</Text>}
             {!!supplier.bank_account   && <Text style={s.bankRow}>Account Number: {supplier.bank_account}</Text>}
-            {!!supplier.bank_routing   && <Text style={s.bankRow}>Routing Number (ACH/Wire): {supplier.bank_routing}</Text>}
+            {!!supplier.bank_routing   && <Text style={s.bankRow}>Routing Number: {supplier.bank_routing}</Text>}
             {!!supplier.iban           && <Text style={s.bankRow}>IBAN: {supplier.iban}</Text>}
             {!!supplier.swift          && <Text style={s.bankRow}>SWIFT / BIC: {supplier.swift}</Text>}
             {!!invoice.currency        && <Text style={s.bankRow}>Currency: {invoice.currency}</Text>}

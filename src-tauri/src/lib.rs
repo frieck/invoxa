@@ -20,6 +20,12 @@ pub fn run() {
             sql: include_str!("../migrations/003_add_payment_provider.sql"),
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 4,
+            description: "add_payment_method",
+            sql: include_str!("../migrations/004_add_payment_method.sql"),
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()

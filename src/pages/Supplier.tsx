@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Stack, Title, Button, Card, Text, TextInput,
+  Stack, Title, Button, Card, Text, TextInput, Select,
   Textarea, Grid, Group, Divider, Tabs,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
@@ -17,7 +17,7 @@ export default function SupplierPage() {
   const form = useForm<Omit<Supplier, 'id'>>({
     initialValues: {
       name: '', address: '', address2: '', city: '', state: '', zip: '',
-      country: '', email: '', phone: '', tax_id: '', payment_provider: '',
+      country: '', email: '', phone: '', tax_id: '', payment_provider: '', payment_method: '',
       bank_name: '', bank_address: '', bank_account: '', bank_routing: '',
       iban: '', swift: '', website: '', notes: '',
     },
@@ -32,7 +32,8 @@ export default function SupplierPage() {
         name: s.name, address: s.address, address2: s.address2,
         city: s.city, state: s.state, zip: s.zip, country: s.country,
         email: s.email, phone: s.phone, tax_id: s.tax_id,
-        payment_provider: s.payment_provider, bank_name: s.bank_name,
+        payment_provider: s.payment_provider, payment_method: s.payment_method,
+        bank_name: s.bank_name,
         bank_address: s.bank_address, bank_account: s.bank_account,
         bank_routing: s.bank_routing, iban: s.iban, swift: s.swift,
         website: s.website, notes: s.notes,
@@ -125,6 +126,19 @@ export default function SupplierPage() {
               <Grid gutter="sm">
                 <Grid.Col span={{ base: 12, sm: 6 }}>
                   <TextInput label={t('supplier.paymentProvider')} {...form.getInputProps('payment_provider')} />
+                </Grid.Col>
+                <Grid.Col span={{ base: 12, sm: 6 }}>
+                  <Select
+                    label={t('supplier.paymentMethod')}
+                    data={[
+                      { value: 'ACH', label: 'ACH' },
+                      { value: 'Wire', label: 'Wire' },
+                    ]}
+                    clearable
+                    {...form.getInputProps('payment_method')}
+                    value={form.values.payment_method || null}
+                    onChange={(v) => form.setFieldValue('payment_method', v ?? '')}
+                  />
                 </Grid.Col>
                 <Grid.Col span={{ base: 12, sm: 6 }}>
                   <TextInput label={t('supplier.bankName')} {...form.getInputProps('bank_name')} />

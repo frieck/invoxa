@@ -11,6 +11,7 @@ export interface Supplier {
   phone: string;
   tax_id: string;
   payment_provider: string;
+  payment_method: string;
   bank_name: string;
   bank_address: string;
   bank_account: string;
