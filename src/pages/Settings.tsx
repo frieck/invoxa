@@ -9,10 +9,12 @@ import { IconSun, IconMoon, IconDeviceDesktop } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { modals } from '@mantine/modals';
-import { IconDeviceFloppy, IconDownload, IconAlertCircle } from '@tabler/icons-react';
-import { save } from '@tauri-apps/plugin-dialog';
-import { copyFile } from '@tauri-apps/plugin-fs';
+import { IconDeviceFloppy, IconDownload, IconUpload, IconAlertCircle } from '@tabler/icons-react';
+import { save, open } from '@tauri-apps/plugin-dialog';
+import { copyFile, exists, remove } from '@tauri-apps/plugin-fs';
+import { relaunch } from '@tauri-apps/plugin-process';
 import { appDataDir, join } from '@tauri-apps/api/path';
+import { getDb } from '../db';
 import { getSettings, setSetting } from '../db/settings';
 import { storeLanguage, type Language, LANGUAGES } from '../i18n';
 import type { AppSettings } from '../types';
@@ -24,6 +26,7 @@ export default function Settings() {
   const activeScheme = colorScheme ?? 'auto';
   const [saving, setSaving] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [importing, setImporting] = useState(false);
 
   const form = useForm<AppSettings>({
     initialValues: {
@@ -70,6 +73,42 @@ export default function Settings() {
       notifications.show({ message: msg, color: 'red' });
     }
     setExporting(false);
+  };
+
+  const handleImportDb = async () => {
+    const src = await open({
+      multiple: false,
+      filters: [{ name: 'SQLite Database', extensions: ['db'] }],
+    });
+    if (!src || Array.isArray(src)) return;
+
+    modals.openConfirmModal({
+      title: t('settings.importDb'),
+      children: <Text size="sm">{t('settings.importDbWarning')}</Text>,
+      labels: { confirm: t('settings.importDbBtn'), cancel: t('common.cancel') },
+      confirmProps: { color: 'red' },
+      onConfirm: async () => {
+        setImporting(true);
+        try {
+          const db = await getDb();
+          await db.close();
+          const dataDir = await appDataDir();
+          const dest = await join(dataDir, 'invoices.db');
+          for (const suffix of ['-wal', '-shm']) {
+            const sidecar = `${dest}${suffix}`;
+            if (await exists(sidecar)) await remove(sidecar);
+          }
+          await copyFile(src, dest);
+          notifications.show({ message: t('settings.importSuccess'), color: 'green' });
+          await relaunch();
+        } catch (e: unknown) {
+          console.error('Import failed:', e);
+          const msg = e instanceof Error ? e.message : 'Import failed';
+          notifications.show({ message: msg, color: 'red' });
+          setImporting(false);
+        }
+      },
+    });
   };
 
   const handleResetNumber = () => {
@@ -216,6 +255,19 @@ export default function Settings() {
               loading={exporting} onClick={handleExportDb}
             >
               {t('settings.exportDbBtn')}
+            </Button>
+          </Group>
+          <Divider />
+          <Group justify="space-between" align="center">
+            <Stack gap={2}>
+              <Text size="sm" fw={500}>{t('settings.importDb')}</Text>
+              <Text size="xs" c="dimmed">{t('settings.importDbDesc')}</Text>
+            </Stack>
+            <Button
+              variant="light" color="red" leftSection={<IconUpload size={16} />}
+              loading={importing} onClick={handleImportDb}
+            >
+              {t('settings.importDbBtn')}
             </Button>
           </Group>
           <Divider />
